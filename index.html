@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator HD</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        .header p {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 20px 15px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border 0.3s;
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .btn-scan {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-scan:active {
+            transform: scale(0.95);
+        }
+        .slider-group {
+            margin-bottom: 15px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        .color-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .color-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .color-item label {
+            font-size: 0.75em;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .color-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        input[type="color"] {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .color-text {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .preview-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+        .preview-title {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        #qrcode {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        #qrcode canvas, #qrcode img {
+            display: block !important;
+            max-width: 100%;
+            height: auto;
+        }
+        .placeholder {
+            padding: 40px 20px;
+            color: #999;
+        }
+        .placeholder-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .placeholder p {
+            font-size: 0.9em;
+        }
+        .download-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-300 {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        .btn-150 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-96 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.8em;
+            color: #1565c0;
+            line-height: 1.5;
+        }
+        footer {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-size: 0.75em;
+        }
+
+        /* Scanner Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .modal-header {
+            color: white;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        #scannerVideo {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            border: 3px solid #667eea;
+        }
+        #scannerCanvas {
+            display: none;
+        }
+        .btn-close {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .scan-result {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .header p {
+                font-size: 1em;
+            }
+            .content {
+                padding: 30px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1100px;
+            }
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔲 QR Generator HD</h1>
+            <p>Generate & Scan QR Code hingga 300 DPI</p>
+        </div>
+
+        <div class="content">
+            <div class="main-grid">
+                <div class="left-section">
+                    <div class="section">
+                        <div class="section-title">🔗 URL atau Teks</div>
+                        <div class="input-group">
+                            <input type="text" id="qrText" placeholder="https://example.com">
+                            <button class="btn-scan" onclick="openScanner()" title="Scan QR Code">📷</button>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>📏 Ukuran</span>
+                                <strong><span id="sizeValue">300</span> px</strong>
+                            </div>
+                            <input type="range" id="qrSize" min="200" max="600" value="300" step="10">
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">🎨 Warna</div>
+                        <div class="color-row">
+                            <div class="color-item">
+                                <label>QR Code</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="fgColor" value="#000000">
+                                    <input type="text" class="color-text" id="fgColorText" value="#000000">
+                                </div>
+                            </div>
+                            <div class="color-item">
+                                <label>Background</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="bgColor" value="#ffffff">
+                                    <input type="text" class="color-text" id="bgColorText" value="#ffffff">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">🛡️ Error Correction</div>
+                        <select id="errorLevel">
+                            <option value="L">Low (7%)</option>
+                            <option value="M" selected>Medium (15%)</option>
+                            <option value="Q">Quartile (25%)</option>
+                            <option value="H">High (30%)</option>
+                        </select>
+                    </div>
+
+                    <div class="download-section">
+                        <div class="section-title">💾 Download</div>
+                        <button class="btn btn-300" onclick="downloadQR(300)">
+                            ⬇️ 300 DPI (Print)
+                        </button>
+                        <button class="btn btn-150" onclick="downloadQR(150)">
+                            ⬇️ 150 DPI (High)
+                        </button>
+                        <button class="btn btn-96" onclick="downloadQR(96)">
+                            ⬇️ 96 DPI (Web)
+                        </button>
+                    </div>
+
+                    <div class="info-box">
+                        💡 <strong>Tips:</strong> Gunakan tombol 📷 untuk scan QR Code dari kamera, lalu otomatis generate ulang
+                    </div>
+                </div>
+
+                <div class="right-section">
+                    <div class="preview-box">
+                        <div class="preview-title">👁️ PREVIEW</div>
+                        <div id="qrcode">
+                            <div class="placeholder">
+                                <div class="placeholder-icon">📱</div>
+                                <p>Masukkan URL atau teks<br>untuk generate QR</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <strong>QR Code Generator HD</strong> - Generate & Scan QR Code
+        </footer>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div id="scannerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📷 Scan QR Code</h2>
+                <p>Arahkan kamera ke QR Code</p>
+            </div>
+            <video id="scannerVideo" autoplay playsinline></video>
+            <canvas id="scannerCanvas"></canvas>
+            <div id="scanResult"></div>
+            <button class="btn-close" onclick="closeScanner()">❌ Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        let qrcode = null;
+        let stream = null;
+        let scanning = false;
+        const qrDiv = document.getElementById('qrcode');
+        const modal = document.getElementById('scannerModal');
+        const video = document.getElementById('scannerVideo');
+        const canvas = document.getElementById('scannerCanvas');
+        const scanResult = document.getElementById('scanResult');
+
+        function generateQR() {
+            const text = document.getElementById('qrText').value;
+            const size = parseInt(document.getElementById('qrSize').value);
+            const fgColor = document.getElementById('fgColor').value;
+            const bgColor = document.getElementById('bgColor').value;
+            const errorLevel = document.getElementById('errorLevel').value;
+
+            if (!text) {
+                qrDiv.innerHTML = `
+                    <div class="placeholder">
+                        <div class="placeholder-icon">📱</div>
+                        <p>Masukkan URL atau teks<br>untuk generate QR</p>
+                    </div>
+                `;
+                return;
+            }
+
+            qrDiv.innerHTML = '';
+            qrcode = new QRCode(qrDiv, {
+                text: text,
+                width: size,
+                height: size,
+                colorDark: fgColor,
+                colorLight: bgColor,
+                correctLevel: QRCode.CorrectLevel[errorLevel]
+            });
+        }
+
+        function downloadQR(dpi) {
+            const text = document.getElementById('qrText').value;
+            if (!text) {
+                alert('❌ Masukkan URL atau teks dulu!');
+                return;
+            }
+
+            const size = parseInt(document.getElementById('qrSize').value);
+            const fgColor = document.getElementById('fgColor').value;
+            const bgColor = document.getElementById('bgColor').value;
+            const errorLevel = document.getElementById('errorLevel').value;
+
+            const scale = dpi / 96;
+            const scaledSize = Math.floor(size * scale);
+
+            const tempDiv = document.createElement('div');
+            tempDiv.style.display = 'none';
+            document.body.appendChild(tempDiv);
+
+            const tempQR = new QRCode(tempDiv, {
+                text: text,
+                width: scaledSize,
+                height: scaledSize,
+                colorDark: fgColor,
+                colorLight: bgColor,
+                correctLevel: QRCode.CorrectLevel[errorLevel]
+            });
+
+            setTimeout(() => {
+                const canvas = tempDiv.querySelector('canvas');
+                if (canvas) {
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `qrcode-${dpi}dpi.png`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        document.body.removeChild(tempDiv);
+                    }, 'image/png');
+                }
+            }, 100);
+        }
+
+        async function openScanner() {
+            modal.classList.add('active');
+            scanResult.innerHTML = '';
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                video.srcObject = stream;
+                scanning = true;
+                scanQRCode();
+            } catch (err) {
+                alert('❌ Tidak bisa mengakses kamera: ' + err.message);
+                closeScanner();
+            }
+        }
+
+        function closeScanner() {
+            scanning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            modal.classList.remove('active');
+        }
+
+        function scanQRCode() {
+            if (!scanning) return;
+
+            const ctx = canvas.getContext('2d');
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    scanResult.innerHTML = `<div class="scan-result">✅ Terdeteksi: ${code.data}</div>`;
+                    document.getElementById('qrText').value = code.data;
+                    generateQR();
+                    
+                    setTimeout(() => {
+                        closeScanner();
+                    }, 1500);
+                    return;
+                }
+            }
+            
+            requestAnimationFrame(scanQRCode);
+        }
+
+        document.getElementById('qrText').addEventListener('input', generateQR);
+        document.getElementById('qrSize').addEventListener('input', (e) => {
+            document.getElementById('sizeValue').textContent = e.target.value;
+            generateQR();
+        });
+        document.getElementById('fgColor').addEventListener('input', (e) => {
+            document.getElementById('fgColorText').value = e.target.value;
+            generateQR();
+        });
+        document.getElementById('fgColorText').addEventListener('input', (e) => {
+            document.getElementById('fgColor').value = e.target.value;
+            generateQR();
+        });
+        document.getElementById('bgColor').addEventListener('input', (e) => {
+            document.getElementById('bgColorText').value = e.target.value;
+            generateQR();
+        });
+        document.getElementById('bgColorText').addEventListener('input', (e) => {
+            document.getElementById('bgColor').value = e.target.value;
+            generateQR();
+        });
+        document.getElementById('errorLevel').addEventListener('change', generateQR);
+    </script>
+</body>
+</html>
