@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator HD</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -55,12 +54,8 @@
             align-items: center;
             gap: 8px;
         }
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
-        input[type="text"] {
-            flex: 1;
+        input[type="text"], select {
+            width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
@@ -70,26 +65,6 @@
         input[type="text"]:focus, select:focus {
             outline: none;
             border-color: #667eea;
-        }
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-        .btn-scan {
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 20px;
-            transition: transform 0.2s;
-        }
-        .btn-scan:active {
-            transform: scale(0.95);
         }
         .slider-group {
             margin-bottom: 15px;
@@ -250,67 +225,6 @@
             font-size: 0.75em;
         }
 
-        /* Scanner Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            padding: 20px;
-        }
-        .modal.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        .modal-header {
-            color: white;
-            margin-bottom: 20px;
-        }
-        .modal-header h2 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-        #scannerVideo {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 12px;
-            border: 3px solid #667eea;
-        }
-        #scannerCanvas {
-            display: none;
-        }
-        .btn-close {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .scan-result {
-            background: #4caf50;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 14px;
-            word-break: break-all;
-        }
-
         @media (min-width: 768px) {
             body {
                 padding: 20px;
@@ -327,6 +241,9 @@
             }
             .content {
                 padding: 30px;
+            }
+            .color-row {
+                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -346,7 +263,7 @@
     <div class="container">
         <div class="header">
             <h1>🔲 QR Generator HD</h1>
-            <p>Generate & Scan QR Code hingga 300 DPI</p>
+            <p>Buat QR Code hingga 300 DPI</p>
         </div>
 
         <div class="content">
@@ -354,10 +271,7 @@
                 <div class="left-section">
                     <div class="section">
                         <div class="section-title">🔗 URL atau Teks</div>
-                        <div class="input-group">
-                            <input type="text" id="qrText" placeholder="https://example.com">
-                            <button class="btn-scan" onclick="openScanner()" title="Scan QR Code">📷</button>
-                        </div>
+                        <input type="text" id="qrText" placeholder="https://example.com">
                     </div>
 
                     <div class="section">
@@ -414,7 +328,7 @@
                     </div>
 
                     <div class="info-box">
-                        💡 <strong>Tips:</strong> Gunakan tombol 📷 untuk scan QR Code dari kamera, lalu otomatis generate ulang
+                        💡 <strong>Tips:</strong> 300 DPI untuk cetak, 150 DPI untuk dokumen, 96 DPI untuk web
                     </div>
                 </div>
 
@@ -433,33 +347,13 @@
         </div>
 
         <footer>
-            <strong>QR Code Generator HD</strong> - Generate & Scan QR Code
+            <strong>QR Code Generator HD</strong> - Responsive Mobile First Design
         </footer>
-    </div>
-
-    <!-- Scanner Modal -->
-    <div id="scannerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📷 Scan QR Code</h2>
-                <p>Arahkan kamera ke QR Code</p>
-            </div>
-            <video id="scannerVideo" autoplay playsinline></video>
-            <canvas id="scannerCanvas"></canvas>
-            <div id="scanResult"></div>
-            <button class="btn-close" onclick="closeScanner()">❌ Tutup</button>
-        </div>
     </div>
 
     <script>
         let qrcode = null;
-        let stream = null;
-        let scanning = false;
         const qrDiv = document.getElementById('qrcode');
-        const modal = document.getElementById('scannerModal');
-        const video = document.getElementById('scannerVideo');
-        const canvas = document.getElementById('scannerCanvas');
-        const scanResult = document.getElementById('scanResult');
 
         function generateQR() {
             const text = document.getElementById('qrText').value;
@@ -531,60 +425,6 @@
                     }, 'image/png');
                 }
             }, 100);
-        }
-
-        async function openScanner() {
-            modal.classList.add('active');
-            scanResult.innerHTML = '';
-            
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
-                });
-                video.srcObject = stream;
-                scanning = true;
-                scanQRCode();
-            } catch (err) {
-                alert('❌ Tidak bisa mengakses kamera: ' + err.message);
-                closeScanner();
-            }
-        }
-
-        function closeScanner() {
-            scanning = false;
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-            modal.classList.remove('active');
-        }
-
-        function scanQRCode() {
-            if (!scanning) return;
-
-            const ctx = canvas.getContext('2d');
-            
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                
-                if (code) {
-                    scanResult.innerHTML = `<div class="scan-result">✅ Terdeteksi: ${code.data}</div>`;
-                    document.getElementById('qrText').value = code.data;
-                    generateQR();
-                    
-                    setTimeout(() => {
-                        closeScanner();
-                    }, 1500);
-                    return;
-                }
-            }
-            
-            requestAnimationFrame(scanQRCode);
         }
 
         document.getElementById('qrText').addEventListener('input', generateQR);
